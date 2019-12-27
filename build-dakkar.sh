@@ -34,6 +34,7 @@ Options:
 ROM types:
 
   aex-pie
+  aex-quack
   aicp-oreo
   aokp-oreo
   aosmp-pie
@@ -47,6 +48,7 @@ ROM types:
   e-pie
   e-oreo
   havoc-pie
+  havoc-ten
   komodo-pie
   lineage151
   lineage160
@@ -230,7 +232,15 @@ function get_rom_type() {
                 localManifestBranch="android-9.0"
                 treble_generate="aex"
                 extra_make_options="WITHOUT_CHECK_API=true"
-                jack_enabled="false"
+                jack_enabled="true"
+                ;;
+            aex-quack)
+                mainrepo="git://github.com/AospExtended/manifest.git"
+                mainbranch="10.x"
+                localManifestBranch="android-10.0"
+                treble_generate="aex"
+                extra_make_options="WITHOUT_CHECK_API=true"
+                jack_enabled="true"
                 ;;
             slim-oreo)
                 mainrepo="https://github.com/SlimRoms/platform_manifest.git"
@@ -247,6 +257,14 @@ function get_rom_type() {
                 treble_generate="havoc"
                 extra_make_options="WITHOUT_CHECK_API=true"
                 jack_enabled="false"
+                ;;
+            havoc-ten)
+                mainrepo="git://github.com/Havoc-OS/android_manifest.git"
+                mainbranch="ten"
+                localManifestBranch="android-10.0"
+                treble_generate="havoc"
+                extra_make_options="WITHOUT_CHECK_API=true"
+                jack_enabled="true"
                 ;;
             komodo-pie)
                 mainrepo="https://github.com/KomodOS-Rom/platform_manifest.git"
@@ -280,22 +298,22 @@ function get_rom_type() {
                 extra_make_options="WITHOUT_CHECK_API=true"
                 jack_enabled="false"
                 ;;
-	    graphene9)
-	    	mainrepo="https://github.com/GrapheneOS/platform_manifest.git"
-		mainbranch="pie"
-		localManifestBranch="android-9.0"
-		treble_generate="graphene"
-		extra_make_options="WITHOUT_CHECK_API=true"
-		jack_enabled="false"
+			graphene9)
+				mainrepo="https://github.com/GrapheneOS/platform_manifest.git"
+				mainbranch="pie"
+				localManifestBranch="android-9.0"
+				treble_generate="graphene"
+				extra_make_options="WITHOUT_CHECK_API=true"
+				jack_enabled="false"
                 ;;
-	   graphene10)
-	   	mainrepo="https://github.com/GrapheneOS/platform_manifest.git"
-		mainbranch="10"
-		localManifestBranch="android-10.0"
-		treble_generate="graphene"
-		extra_make_options="WITHOUT_CHECK_API=true"
-		jack_enabled="false"
-	   
+			graphene10)
+				mainrepo="https://github.com/GrapheneOS/platform_manifest.git"
+				mainbranch="10"
+				localManifestBranch="android-10.0"
+				treble_generate="graphene"
+				extra_make_options="WITHOUT_CHECK_API=true"
+				jack_enabled="false"
+                ;;
 	esac
         shift
     done
@@ -364,8 +382,7 @@ function get_variants() {
     done
 }
 
-## function that actually do things
-
+## functions that actually do things
 function init_release() {
     mkdir -p release/"$rom_fp"
 }
@@ -386,7 +403,13 @@ function clone_or_checkout() {
             git checkout origin/"$localManifestBranch"
         )
     else
+		(
+        if [[ "$repo" == treble_patches || "$repo" == vendor_foss ]];then
+		git clone https://github.com/AreYouLoco/"$repo" "$dir" -b "$localManifestBranch"
+		else
         git clone https://github.com/phhusson/"$repo" "$dir" -b "$localManifestBranch"
+        fi
+        )
     fi
 }
 
@@ -408,7 +431,7 @@ function init_patches() {
         fi
 
         # should I do this? will it interfere with building non-gapps images?
-        # rm -f .repo/local_manifests/opengapps.xml
+        #rm -f .repo/local_manifests/opengapps.xml
     fi
 }
 
